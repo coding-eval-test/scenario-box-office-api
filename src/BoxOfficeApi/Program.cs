@@ -1,4 +1,6 @@
 using BoxOfficeApi.Data;
+using BoxOfficeApi.Middleware;
+using BoxOfficeApi.Services.Payments;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,12 +9,19 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Default")
                       ?? "Data Source=box-office.db"));
 
+// --- application services (registered as features are added) ---
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddSingleton<IPaymentGateway, StubPaymentGateway>();
+// --- end application services ---
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
@@ -22,6 +31,15 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+
+// Applying migrations at startup keeps the trainee experience to a single
+// "dotnet run" with no database setup step.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+    DbSeeder.Seed(db);
+}
 
 app.Run();
 
