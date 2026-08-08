@@ -1,0 +1,43 @@
+{
+  "scenario": "box-office-api",
+  "name": "Box Office API",
+  "templateRepo": "coding-eval-test/scenario-box-office-api",
+  "projectPath": "src/BoxOfficeApi",
+  "docsAllowList": [
+    "NotFoundException",
+    "ConflictException",
+    "PaymentFailedException"
+  ],
+  "categories": [
+    {
+      "category": "Regression",
+      "points": 20,
+      "label": "Existing behaviour keeps working"
+    },
+    {
+      "category": "S1",
+      "points": 20,
+      "label": "S1 idempotent booking"
+    },
+    {
+      "category": "S2",
+      "points": 15,
+      "label": "S2 atomic confirmation"
+    },
+    {
+      "category": "S3",
+      "points": 15,
+      "label": "S3 seat hold with expiry"
+    },
+    {
+      "category": "B1",
+      "points": 15,
+      "label": "B1 double-booking"
+    },
+    {
+      "category": "B2",
+      "points": 15,
+      "label": "B2 on-sale time is wrong across timezones"
+    }
+  ]
+}
